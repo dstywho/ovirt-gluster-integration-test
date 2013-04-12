@@ -1,0 +1,58 @@
+{
+    "py/object": "__main__.Config",
+    "cluster": {
+        "py/object": "ovirtsdk.xml.params.Cluster",
+        "name": "mycluster",
+        "gluster_service": true,
+        "version": {
+            "py/object": "ovirtsdk.xml.params.Version",
+            "major": 3,
+            "minor": 1
+        },
+        "link": [],
+        "virt_service": false,
+        "data_center": {
+            "py/object": "ovirtsdk.xml.params.DataCenter"
+        },
+        "creation_status": null,
+        "error_handling": null,
+        "cpu": {
+            "py/object": "ovirtsdk.xml.params.CPU",
+            "id": "Intel SandyBridge Family",
+            "mode": "CUSTOM"
+        },
+        "scheduling_policy": null
+    },
+    "hosts": [
+        {
+            "py/object": "ovirtsdk.xml.params.Host",
+            "cluster": {
+                "py/id": 1
+            },
+            "name": "node1",
+            "root_password": "redhat",
+            "address": "rhevm-sf101-node-a"
+        },
+        {
+            "py/object": "ovirtsdk.xml.params.Host",
+            "cluster": {
+                "py/id": 1
+            },
+            "name": "node2",
+            "root_password": "redhat",
+            "address": "rhevm-sf101-node-b"
+        }
+    ],
+    "datacenter": {
+        "py/object": "ovirtsdk.xml.params.DataCenter",
+        "storage_type": "posixfs",
+        "version": {
+            "py/object": "ovirtsdk.xml.params.Version",
+            "major": 3,
+            "creation_status": null,
+            "id": null,
+            "minor": 1
+        },
+        "name": "mydatacenter"
+    }
+}
