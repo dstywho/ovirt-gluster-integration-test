@@ -4,97 +4,104 @@ from ovirtsdk.infrastructure.errors import RequestError
 from ovirtsdk.api import API
 import jsonpickle
 
+
+
+class Item(object):
+    def __init__(self, args, extras={},creation=None):
+        self.args = args
+        self.extras = extras
+        self.creation=creation
+
+
+    def transform_extras(self):
+        result = {}
+        for key in self.extras:
+            result[key] = self.extras[key].create() 
+        return result
+
+    def compiled_args(self):
+        result = {}
+        result.update(self.args)
+        result.update(self.transform_extras())
+        return result
+
+    def create(self):
+        return self.creation(**compiled_args())
+
+
+
+class Version(Item):
+    def __init__(self,args,extras={}):
+        Item.__init__(self,args,extras )
+
+    def create(self):
+        return ParamFactory().create_version(**self.compiled_args())
+
+
+class Datacenter(Item):
+    def __init__(self,args,extras={}):
+        Item.__init__(self,args,extras )
+
+    def create(self):
+        return ParamFactory().create_datacenter(**self.compiled_args())
+
+
+class Cluster(Item):
+    def __init__(self,args,extras={}):
+        Item.__init__(self,args,extras )
+
+    def create(self):
+        return ParamFactory().create_cluster(**self.compiled_args())
+
+class Host(Item):
+    def __init__(self,args,extras={}):
+        Item.__init__(self,args,extras )
+
+    def create(self):
+        return ParamFactory().create_host(**self.compiled_args())
+
+
+
 class Config:
     def __init__(self):
-        self.datacenter = ParamFactory().create_datacenter()
-        self.cluster    = ParamFactory().create_cluster(datacenter_broker=self.datacenter)
+        self.version = Version({'major':'3', 'minor':'1'})
+        self.datacenter = Datacenter({'name':'mydatacenter', 'description':'a description', 'storage_type':'posixfs'} ,{'version':self.version})
+        cpu = {'id':'Intel SandyBridge Family'}
+        self.cluster = Cluster({'name':"mycluster", 'cpu':cpu, 'virt_service':False, 'gluster_service':True} , { 'datacenter':self.datacenter , 'version':self.version})
         self.hosts = []
-        self.hosts.append(ParamFactory().create_host(self.cluster,"node1","rhevm-sf101-node-a"))
-        self.hosts.append(ParamFactory().create_host(self.cluster,"node2","rhevm-sf101-node-b"))
+        self.hosts.append( Host({'name':'myhost', 'host':'rhevm-sf101-node-a', 'root_password':"redhat"}, {'cluster':self.cluster}))
+        self.hosts.append( Host({'name':'myhost2', 'host':'rhevm-sf101-node-a', 'root_password':"redhat"}, {'cluster':self.cluster}))
+
 
     def to_json(self):
       return jsonpickle.encode(self)
+
+    def get_host_by_name(self,name):
+        return filter(lambda x: x.compiled_args()['name']== name , self.hosts)[0].create()
 
     @classmethod
     def from_json(cls,json):
         return jsonpickle.decode(json)
 
     @classmethod
-    def get_instance(cls,json):
+    def get_instance(cls):
         json = open('config/config.json', 'r').read()
         return Config.from_json(json)
 
 
-#config = Config()
-#print config.to_json()
+#if __name__ == "__main__":
 #
-#print Config.from_json(config.to_json()).to_json()
-#
-#
-#json = """
-#{
-#    "py/object": "__main__.Config",
-#    "cluster": {
-#        "py/object": "ovirtsdk.xml.params.Cluster",
-#        "gluster_service": true,
-#        "virt_service": false,
-#        "version": {
-#            "py/object": "ovirtsdk.xml.params.Version",
-#            "major": 3,
-#            "minor": 1
-#        },
-#        "data_center": {
-#            "py/object": "ovirtsdk.xml.params.DataCenter"
-#        },
-#        "link": [],
-#        "creation_status": null,
-#        "error_handling": null,
-#        "cpu": {
-#            "py/object": "ovirtsdk.xml.params.CPU",
-#            "mode": "CUSTOM",
-#            "id": "Intel SandyBridge Family"
-#        },
-#        "scheduling_policy": null,
-#        "name": "mycluster"
-#    },
-#    "hosts": [
-#        {
-#            "cluster": {
-#                "py/id": 1
-#            },
-#            "py/object": "ovirtsdk.xml.params.Host",
-#            "root_password": "redhat",
-#            "address": "rhevm-sf101-node-a",
-#            "name": "node1"
-#        },
-#        {
-#            "cluster": {
-#                "py/id": 1
-#            },
-#            "py/object": "ovirtsdk.xml.params.Host",
-#            "root_password": "redhat",
-#            "address": "rhevm-sf101-node-b",
-#            "name": "node2"
-#        }
-#    ],
-#    "datacenter": {
-#        "py/object": "ovirtsdk.xml.params.DataCenter",
-#        "storage_type": "posixfs",
-#        "version": {
-#            "py/object": "ovirtsdk.xml.params.Version",
-#            "major": 3,
-#            "minor": 1,
-#            "creation_status": null,
-#            "id": null
-#        },
-#        "name": "mydatacenter"
-#    }
-#}
-#"""
-#print "----------"
-#print Config.from_json(json).to_json()
-##import pdb; pdb.set_trace()
-#print "hi"
-#print "----------"
-#json = open('config/config.json', 'r').read()
-#print Config.from_json(json).to_json()
+#    json =  Config().to_json()
+#    print json
+#    #print Config().from_json(json).datacenter.create()
+#    import pdb; pdb.set_trace()    
+#    print Config().from_json(json).hosts[0].create().get_cluster().get_data_center().get_name()
+#    print Config().from_json(json).hosts[0].create().get_cluster().get_data_center().get_name()
+
+    
+
+
+    #json = open('config/config.json', 'r').read()
+    #config = Config.from_json(json)
+    #myhost = config.get_host_by_name('node1')
+    #print myhost.get_name() 
