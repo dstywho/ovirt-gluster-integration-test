@@ -18,7 +18,7 @@
             "datacenter": {
                 "args": {
                     "description": "a description", 
-                    "name": "mydatacenter", 
+                    "name": "Default", 
                     "storage_type": "posixfs"
                 }, 
                 "creation": null, 
@@ -47,7 +47,7 @@
     "hosts": [
         {
             "args": {
-                "host": "latest-a", 
+               "host": "latest-u1-a",
                 "name": "node-a", 
                 "root_password": "redhat"
             }, 
@@ -61,7 +61,7 @@
         }, 
         {
             "args": {
-                "host": "latest-b", 
+               "host": "latest-u1-b",
                 "name": "node-b", 
                 "root_password": "redhat"
             }, 
@@ -77,7 +77,7 @@
     "py/object": "config.config.Config", 
     "rest_api": {
         "password": "redhat", 
-        "url": "https://latest:443/api", 
+        "url": "https://rhsc-cb3:443/api", 
         "username": "admin@internal"
     }, 
     "version": {
